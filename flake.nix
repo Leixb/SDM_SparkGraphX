@@ -1,5 +1,4 @@
 {
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
@@ -9,7 +8,7 @@
     };
 
   };
-  outputs = { self, nixpkgs, flake-utils, mach-nix, ...}:
+  outputs = { self, nixpkgs, flake-utils, ...}:
 
   flake-utils.lib.eachDefaultSystem (system:
   let
