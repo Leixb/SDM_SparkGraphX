@@ -65,6 +65,10 @@ public class Exercise_3 {
         }
     }
 
+    // We save both the path cost and the vertex from where we came from in a
+    // Tuple. This allows to compute the final path by tracing back the vertices
+    // from which we came. Since the short's path is a tree, we know that there
+    // are no cycles so we can trace-back without worrying about infinite loops.
 	public static void shortestPathsExt(JavaSparkContext ctx) {
         Map<Long, String> labels = ImmutableMap.<Long, String>builder()
                 .put(1l, "A")
