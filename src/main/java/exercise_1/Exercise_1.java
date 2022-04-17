@@ -24,6 +24,7 @@ public class Exercise_1 {
     private static class VProg extends AbstractFunction3<Long, Integer, Integer, Integer> implements Serializable {
         @Override
         public Integer apply(Long vertexID, Integer vertexValue, Integer message) {
+            System.out.format("Vertex ID: %d, Vertex Value: %d, Message: %d\n", vertexID, vertexValue, message);
             if (message == Integer.MAX_VALUE) { // superstep 0
                 return vertexValue;
             } else { // superstep > 0
@@ -45,6 +46,7 @@ public class Exercise_1 {
                 return JavaConverters.asScalaIteratorConverter(new ArrayList<Tuple2<Object, Integer>>().iterator())
                         .asScala();
             } else {
+            System.out.format("%d (%d) -> %d (%d)\n", sourceVertex._1(), sourceVertex._2(), dstVertex._1(), dstVertex._2());
                 // propagate source vertex value
                 return JavaConverters
                         .asScalaIteratorConverter(
