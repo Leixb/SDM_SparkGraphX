@@ -19,6 +19,8 @@
   rec {
     devShell = with pkgs; mkShellNoCC {
 
+      name = "Spark GrpahX JDTLS";
+
       buildInputs = [
         jdk jdtls # JDTLS requires java > 1.11
 
