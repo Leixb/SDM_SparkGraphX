@@ -57,7 +57,7 @@ public class Exercise_2 {
     private static class merge extends AbstractFunction2<Integer,Integer,Integer> implements Serializable {
         @Override
         public Integer apply(Integer o, Integer o2) {
-            return null;
+            return Math.min(o, o2);
         }
     }
 
