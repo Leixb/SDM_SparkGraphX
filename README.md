@@ -1,0 +1,51 @@
+## Exercise 1
+
+- SuperStep 0
+    - Initial state:
+        - Vertex ID: 1, Vertex Value: 9
+        - Vertex ID: 2, Vertex Value: 1
+        - Vertex ID: 3, Vertex Value: 6
+        - Vertex ID: 4, Vertex Value: 8
+    - Received messages (Integer.MAX_VALUE):
+        - Vertex ID: 1, Message: 2147483647
+        - Vertex ID: 2, Message: 2147483647
+        - Vertex ID: 3, Message: 2147483647
+        - Vertex ID: 4, Message: 2147483647
+    - Calculations done:
+        - All stay the same
+    - Sent Messages
+        - V1 -> V2, Message: 9
+
+- SuperStep 1
+    - Initial state:
+        - Vertex ID: 1, Vertex Value: 9
+        - Vertex ID: 2, Vertex Value: 1
+        - Vertex ID: 3, Vertex Value: 6
+        - Vertex ID: 4, Vertex Value: 8
+    - Received messages:
+        - Vertex ID: 2, Message: 9
+    - Calculations done:
+        - V2 1 -> 9
+    - Sent Messages
+        - V2 -> V3, Message: 9
+        - V2 -> V4, Message: 9
+- SuperStep 2
+    - Initial state:
+        - Vertex ID: 1, Vertex Value: 9
+        - Vertex ID: 2, Vertex Value: 9
+        - Vertex ID: 3, Vertex Value: 6
+        - Vertex ID: 4, Vertex Value: 8
+    - Received messages:
+        - Vertex ID: 3, Message: 9
+        - Vertex ID: 4, Message: 9
+    - Calculations done:
+        - V3 6 -> 9
+        - V4 8 -> 9
+    - Sent Messages
+        - No messages
+
+- Final state:
+    - Vertex ID: 1, Vertex Value: 9
+    - Vertex ID: 2, Vertex Value: 9
+    - Vertex ID: 3, Vertex Value: 9
+    - Vertex ID: 4, Vertex Value: 9
