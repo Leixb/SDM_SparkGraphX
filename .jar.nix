@@ -8,7 +8,7 @@
 
 let
   repository = callPackage ./.build-maven-repo.nix { };
-  classpath =  builtins.concatStringsSep ":" (builtins.map (x: repository + x) ((lib.splitString "\n") (builtins.readFile ./.classpath)));
+  classpath =  builtins.concatStringsSep ":" (builtins.map (x: repository + x) ((lib.splitString "\n") (builtins.readFile ./.classpath.list)));
 in
 
 stdenv.mkDerivation rec {
