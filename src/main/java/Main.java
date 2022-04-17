@@ -16,42 +16,38 @@ import utils.Utils;
 
 public class Main {
 
-	static String HADOOP_COMMON_PATH = "SET THE ABSOLUTE PATH OF THE RESOURCE DIRECTORY WHERE THE WINUTILS IS LOCATED"; // "C:\\...\\SparkGraphXassignment\\src\\main\\resources"
-	
-	public static void main(String[] args) throws Exception {
-		System.setProperty("hadoop.home.dir", HADOOP_COMMON_PATH);
+    static String HADOOP_COMMON_PATH = "SET THE ABSOLUTE PATH OF THE RESOURCE DIRECTORY WHERE THE WINUTILS IS LOCATED"; // "C:\\...\\SparkGraphXassignment\\src\\main\\resources"
 
-		SparkConf conf = new SparkConf().setAppName("SparkGraphs_II").setMaster("local[*]");
-		JavaSparkContext ctx = new JavaSparkContext(conf);
-		ctx.setCheckpointDir(Files.createTempDir().getAbsolutePath());
-		
-		SQLContext sqlctx = new SQLContext(ctx);
-		
+    public static void main(String[] args) throws Exception {
+        System.setProperty("hadoop.home.dir", HADOOP_COMMON_PATH);
+
+        SparkConf conf = new SparkConf().setAppName("SparkGraphs_II").setMaster("local[*]");
+        JavaSparkContext ctx = new JavaSparkContext(conf);
+        ctx.setCheckpointDir(Files.createTempDir().getAbsolutePath());
+
+        SQLContext sqlctx = new SQLContext(ctx);
+
         Logger.getLogger("org.apache.spark").setLevel(Level.WARN);
         Logger.getLogger("org.apache.spark.storage.BlockManager").setLevel(
                 Level.ERROR);
 
-		if (args.length != 1) throw new Exception("Parameter expected: exercise number");
+        if (args.length != 1)
+            throw new Exception("Parameter expected: exercise number");
 
-		if (args[0].equals("exercise1")) {
-		    Exercise_1.maxValue(ctx);
-        }
-        else if (args[0].equals("exercise2")) {
+        if (args[0].equals("exercise1")) {
+            Exercise_1.maxValue(ctx);
+        } else if (args[0].equals("exercise2")) {
             Exercise_2.shortestPaths(ctx);
-        }
-        else if (args[0].equals("exercise3")) {
+        } else if (args[0].equals("exercise3")) {
             Exercise_3.shortestPathsExt(ctx);
-        }
-        else if (args[0].equals("exercise4_warmup")) {
-        	Exercise_4_warmup.warmup(ctx,sqlctx);
-        }
-        else if (args[0].equals("exercise4")) {
-            Exercise_4.wikipedia(ctx,sqlctx);
-        }
-        else {
-		    throw new Exception("Wrong exercise number");
+        } else if (args[0].equals("exercise4_warmup")) {
+            Exercise_4_warmup.warmup(ctx, sqlctx);
+        } else if (args[0].equals("exercise4")) {
+            Exercise_4.wikipedia(ctx, sqlctx);
+        } else {
+            throw new Exception("Wrong exercise number");
         }
 
-	}
+    }
 
 }

@@ -24,17 +24,16 @@ import java.util.List;
 
 public class Exercise_4 {
 
-	public static void wikipedia(JavaSparkContext ctx, SQLContext sqlCtx) {
-		java.util.List<Row> vertices_list = new ArrayList<Row>();
-		JavaRDD<Row> vertices_rdd = ctx.parallelize(vertices_list);
+    public static void wikipedia(JavaSparkContext ctx, SQLContext sqlCtx) {
+        java.util.List<Row> vertices_list = new ArrayList<Row>();
+        JavaRDD<Row> vertices_rdd = ctx.parallelize(vertices_list);
 
+        StructType vertices_schema = new StructType(new StructField[] {
+                new StructField("id", DataTypes.StringType, true, new MetadataBuilder().build()),
+                new StructField("title", DataTypes.StringType, true, new MetadataBuilder().build()),
+        });
 
-		StructType vertices_schema = new StructType(new StructField[]{
-			new StructField("id", DataTypes.StringType, true, new MetadataBuilder().build()),
-			new StructField("title", DataTypes.StringType, true, new MetadataBuilder().build()),
-		});
-
-		Dataset<Row> vertices =  sqlCtx.createDataFrame(vertices_rdd, vertices_schema);
+        Dataset<Row> vertices = sqlCtx.createDataFrame(vertices_rdd, vertices_schema);
 
         try {
             Resources.readLines(Resources.getResource("wiki-vertices.txt"), Charset.defaultCharset()).forEach(line -> {
@@ -46,8 +45,8 @@ public class Exercise_4 {
             return;
         }
 
-		// edges creation
-		java.util.List<Row> edges_list = new ArrayList<Row>();
+        // edges creation
+        java.util.List<Row> edges_list = new ArrayList<Row>();
 
         try {
             Resources.readLines(Resources.getResource("wiki-edges.txt"), Charset.defaultCharset()).forEach(line -> {
@@ -59,24 +58,24 @@ public class Exercise_4 {
             return;
         }
 
-		JavaRDD<Row> edges_rdd = ctx.parallelize(edges_list, 1000);
+        JavaRDD<Row> edges_rdd = ctx.parallelize(edges_list, 1000);
 
-		StructType edges_schema = new StructType(new StructField[]{
-			new StructField("src", DataTypes.StringType, true, new MetadataBuilder().build()),
-			new StructField("dst", DataTypes.StringType, true, new MetadataBuilder().build()),
-		});
+        StructType edges_schema = new StructType(new StructField[] {
+                new StructField("src", DataTypes.StringType, true, new MetadataBuilder().build()),
+                new StructField("dst", DataTypes.StringType, true, new MetadataBuilder().build()),
+        });
 
-		Dataset<Row> edges = sqlCtx.createDataFrame(edges_rdd, edges_schema);
+        Dataset<Row> edges = sqlCtx.createDataFrame(edges_rdd, edges_schema);
 
-		GraphFrame gf = GraphFrame.apply(vertices,edges);
+        GraphFrame gf = GraphFrame.apply(vertices, edges);
 
-		System.out.println(gf);
+        System.out.println(gf);
 
         GraphFrame results = gf.pageRank().maxIter(10).resetProbability(0.15).run();
 
         results.vertices().select("id", "title", "pagerank").sort(col("pagerank").desc()).show(10);
         results.edges().select("src", "dst", "weight").sort(col("weight").desc()).show(10);
 
-	}
+    }
 
 }

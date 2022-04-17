@@ -1,4 +1,5 @@
 package utils;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,10 +14,10 @@ import org.apache.log4j.Logger;
 
 public class Utils {
 
-	static {
-		Logger.getLogger("org.apache.spark").setLevel(Level.WARN);
-		Logger.getLogger("org.apache.spark.storage.BlockManager").setLevel(
-				Level.ERROR);
-	}
+    static {
+        Logger.getLogger("org.apache.spark").setLevel(Level.WARN);
+        Logger.getLogger("org.apache.spark.storage.BlockManager").setLevel(
+                Level.ERROR);
+    }
 
 }
