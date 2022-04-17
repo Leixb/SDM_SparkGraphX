@@ -14,6 +14,8 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.types.MetadataBuilder;
 import org.graphframes.GraphFrame;
+import org.graphframes.lib.PageRank;
+import static org.apache.spark.sql.functions.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -57,7 +59,7 @@ public class Exercise_4 {
             return;
         }
 
-		JavaRDD<Row> edges_rdd = ctx.parallelize(edges_list);
+		JavaRDD<Row> edges_rdd = ctx.parallelize(edges_list, 1000);
 
 		StructType edges_schema = new StructType(new StructField[]{
 			new StructField("src", DataTypes.StringType, true, new MetadataBuilder().build()),
@@ -70,9 +72,10 @@ public class Exercise_4 {
 
 		System.out.println(gf);
 
-		gf.edges().show();
-		gf.vertices().show();
+        GraphFrame results = gf.pageRank().maxIter(10).resetProbability(0.15).run();
 
+        results.vertices().select("id", "title", "pagerank").sort(col("pagerank").desc()).show(10);
+        results.edges().select("src", "dst", "weight").sort(col("weight").desc()).show(10);
 
 	}
 
