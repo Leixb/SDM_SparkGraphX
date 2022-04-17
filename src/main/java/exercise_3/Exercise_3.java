@@ -19,6 +19,8 @@ import scala.runtime.AbstractFunction3;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +101,9 @@ public class Exercise_3 {
 
         GraphOps ops = new GraphOps(G, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class),scala.reflect.ClassTag$.MODULE$.apply(Integer.class));
 
-        ops.pregel(new Tuple2<Long,Integer>(Long.MAX_VALUE, Integer.MAX_VALUE),
+        Map<Long, Long> pathFrom = new HashMap();
+
+        List<Tuple2<Object,Tuple2<Long,Integer>>> finalVertices = ops.pregel(new Tuple2<Long,Integer>(Long.MAX_VALUE, Integer.MAX_VALUE),
                 Integer.MAX_VALUE,
                 EdgeDirection.Out(),
                 new VProg(),
@@ -107,11 +111,27 @@ public class Exercise_3 {
                 new merge(),
                 ClassTag$.MODULE$.apply(Tuple2.class))
             .vertices()
-            .toJavaRDD()
-            .foreach(v -> {
-                Tuple2<Object,Tuple2<Long,Integer>> vertex = (Tuple2<Object,Tuple2<Long,Integer>>)v;
-                System.out.println("Minimum cost to get from "+labels.get(1l)+" to "+labels.get(vertex._1())+" is "+vertex._2()._2());
-            });
+            .toJavaRDD().collect();
+
+        finalVertices.forEach(v -> {
+            pathFrom.put((Long)v._1(), v._2()._1());
+        });
+
+        finalVertices.forEach(v -> {
+            System.out.println("Minimum cost to get from "+labels.get(1l)+" to "+labels.get(v._1())+" is " +
+                getPath(pathFrom, (Long)v._1(), labels) + " with cost " + v._2()._2());
+        });
 	}
+
+    public static String getPath(Map<Long, Long> pathFrom, Long position, Map<Long, String> labels) {
+        List<String> path = new ArrayList<>();
+        while (position != Long.MAX_VALUE) {
+            path.add(labels.get(position));
+            position = pathFrom.get(position);
+        }
+
+        Collections.reverse(path);
+        return path.toString();
+    }
 
 }
