@@ -55,17 +55,18 @@ public class Exercise_3 {
             Integer dstDist = dstVertex._2()._2();
             Integer currDist = sourceVertex._2()._2();
 
-            if (currDist != Integer.MAX_VALUE && (dstDist == Integer.MAX_VALUE || dstDist > currDist + edgeCost)) {
+            if (currDist != Integer.MAX_VALUE && dstDist > currDist + edgeCost) {
                 return JavaConverters
                         .asScalaIteratorConverter(
                                 Arrays.asList(new Tuple2<Object, Tuple2<Long, Integer>>(triplet.dstId(),
                                         new Tuple2<Long, Integer>(triplet.srcId(), currDist + edgeCost))).iterator())
                         .asScala();
-            } else {
-                return JavaConverters
-                        .asScalaIteratorConverter(new ArrayList<Tuple2<Object, Tuple2<Long, Integer>>>().iterator())
-                        .asScala();
             }
+
+            // no message to send
+            return JavaConverters
+                    .asScalaIteratorConverter(new ArrayList<Tuple2<Object, Tuple2<Long, Integer>>>().iterator())
+                    .asScala();
         }
     }
 
