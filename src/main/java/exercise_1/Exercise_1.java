@@ -27,9 +27,9 @@ public class Exercise_1 {
             System.out.format("Vertex ID: %d, Vertex Value: %d, Message: %d\n", vertexID, vertexValue, message);
             if (message == Integer.MAX_VALUE) { // superstep 0
                 return vertexValue;
-            } else { // superstep > 0
-                return Math.max(vertexValue, message);
             }
+            // superstep > 0
+            return message;
         }
     }
 
@@ -41,25 +41,36 @@ public class Exercise_1 {
             Tuple2<Object, Integer> sourceVertex = triplet.toTuple()._1();
             Tuple2<Object, Integer> dstVertex = triplet.toTuple()._2();
 
-            if (sourceVertex._2 <= dstVertex._2) { // source vertex value is smaller than dst vertex?
-                // do nothing
-                return JavaConverters.asScalaIteratorConverter(new ArrayList<Tuple2<Object, Integer>>().iterator())
-                        .asScala();
-            } else {
-            System.out.format("%d (%d) -> %d (%d)\n", sourceVertex._1(), sourceVertex._2(), dstVertex._1(), dstVertex._2());
-                // propagate source vertex value
-                return JavaConverters
-                        .asScalaIteratorConverter(
-                                Arrays.asList(new Tuple2<Object, Integer>(triplet.dstId(), sourceVertex._2)).iterator())
-                        .asScala();
+            if (sourceVertex._2 != dstVertex._2) {
+                if (sourceVertex._2 == Integer.MAX_VALUE || dstVertex._2 > sourceVertex._2) { // Send to src
+                    return JavaConverters
+                            .asScalaIteratorConverter(
+                                    Arrays.asList(new Tuple2<Object, Integer>(triplet.srcId(), dstVertex._2))
+                                            .iterator())
+                            .asScala();
+                }
+
+                if (dstVertex._2 == Integer.MAX_VALUE || sourceVertex._2 > dstVertex._2) { // Send to dst
+                    return JavaConverters
+                            .asScalaIteratorConverter(
+                                    Arrays.asList(new Tuple2<Object, Integer>(triplet.dstId(), sourceVertex._2))
+                                            .iterator())
+                            .asScala();
+                }
             }
+
+            // If both vertices have the same value, send nothing.
+            // This also covers the case were the source and destination vertices are
+            // MAX_VALUE
+            return JavaConverters.asScalaIteratorConverter(new ArrayList<Tuple2<Object, Integer>>().iterator())
+                    .asScala().toIterator();
         }
     }
 
     private static class merge extends AbstractFunction2<Integer, Integer, Integer> implements Serializable {
         @Override
         public Integer apply(Integer o, Integer o2) {
-            return null;
+            return Math.max(o, o2);
         }
     }
 
