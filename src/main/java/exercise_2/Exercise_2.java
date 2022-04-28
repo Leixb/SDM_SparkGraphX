@@ -31,6 +31,10 @@ public class Exercise_2 {
             }
 
             // superstep > 0
+            //
+            // Since we already check the condition before sending the message
+            // and on the merge, we can safely assume that the message is the
+            // less than the current value.
             return message;
         }
     }
@@ -48,6 +52,9 @@ public class Exercise_2 {
             Integer dstDist = dstVertex._2();
             Integer currDist = sourceVertex._2();
 
+            // If the destination vertex has not been visited, or the distance to the destination vertex through
+            // this edge is less than the current distance, then send a message
+            // with the distance.
             if (currDist != Integer.MAX_VALUE && dstDist > currDist + edgeCost) {
                 return JavaConverters
                         .asScalaIteratorConverter(Arrays
@@ -55,7 +62,7 @@ public class Exercise_2 {
                         .asScala();
             }
 
-            // no message to send
+            // Otherwise, no message to send
             return JavaConverters.asScalaIteratorConverter(new ArrayList<Tuple2<Object, Integer>>().iterator())
                     .asScala();
         }
@@ -64,6 +71,7 @@ public class Exercise_2 {
     private static class merge extends AbstractFunction2<Integer, Integer, Integer> implements Serializable {
         @Override
         public Integer apply(Integer o, Integer o2) {
+            // In case of a collision, prefer the smaller distance
             return Math.min(o, o2);
         }
     }

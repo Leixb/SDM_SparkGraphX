@@ -37,6 +37,10 @@ public class Exercise_3 {
             }
 
             // superstep > 0
+            //
+            // Since we already check the condition before sending the message
+            // and on the merge, we can safely assume that the message is the
+            // less than the current value.
             return message;
         }
     }
@@ -55,6 +59,9 @@ public class Exercise_3 {
             Integer dstDist = dstVertex._2()._2();
             Integer currDist = sourceVertex._2()._2();
 
+            // If the destination vertex has not been visited, or the distance to the destination vertex through
+            // this edge is less than the current distance, then send a message
+            // with the edge *source* vertex id and the distance.
             if (currDist != Integer.MAX_VALUE && dstDist > currDist + edgeCost) {
                 return JavaConverters
                         .asScalaIteratorConverter(
@@ -63,7 +70,7 @@ public class Exercise_3 {
                         .asScala();
             }
 
-            // no message to send
+            // Otherwise, no message to send
             return JavaConverters
                     .asScalaIteratorConverter(new ArrayList<Tuple2<Object, Tuple2<Long, Integer>>>().iterator())
                     .asScala();
@@ -75,12 +82,17 @@ public class Exercise_3 {
             implements Serializable {
         @Override
         public Tuple2<Long, Integer> apply(Tuple2<Long, Integer> o, Tuple2<Long, Integer> o2) {
+            // In case of a collision, prefer the smaller distance
             if (o._2() < o2._2()) {
                 return o;
             } else {
                 return o2;
             }
         }
+    }
+
+    private static Tuple2<Object, Tuple2<Long, Integer>> newVertex (Long id, Integer dist) {
+        return new Tuple2<Object, Tuple2<Long, Integer>>(id, new Tuple2<Long, Integer>(Long.MAX_VALUE, dist));
     }
 
     // We save both the path cost and the vertex from where we came from in a
@@ -97,18 +109,23 @@ public class Exercise_3 {
                 .put(6l, "F")
                 .build();
 
+        // For each vertex, we store the distance to the source vertex and the
+        // vertex from which we came in a tuple Tuple<Long, Integer>.
+        // The first value is the source vertex, the second is the distance.
+        //
+        // We need to adapt all the methods from exercise 2 to take a
+        // Tuple2<Long, Integer> instead of just an Integer.
+        //
+        // Since the initialization is quite verbose, we use a function
+        // `newVertex` to simplify it and avoid errors.
         List<Tuple2<Object, Tuple2<Long, Integer>>> vertices = Lists.newArrayList(
-                new Tuple2<Object, Tuple2<Long, Integer>>(1l, new Tuple2<Long, Integer>(Long.MAX_VALUE, 0)),
-                new Tuple2<Object, Tuple2<Long, Integer>>(2l,
-                        new Tuple2<Long, Integer>(Long.MAX_VALUE, Integer.MAX_VALUE)),
-                new Tuple2<Object, Tuple2<Long, Integer>>(3l,
-                        new Tuple2<Long, Integer>(Long.MAX_VALUE, Integer.MAX_VALUE)),
-                new Tuple2<Object, Tuple2<Long, Integer>>(4l,
-                        new Tuple2<Long, Integer>(Long.MAX_VALUE, Integer.MAX_VALUE)),
-                new Tuple2<Object, Tuple2<Long, Integer>>(5l,
-                        new Tuple2<Long, Integer>(Long.MAX_VALUE, Integer.MAX_VALUE)),
-                new Tuple2<Object, Tuple2<Long, Integer>>(6l,
-                        new Tuple2<Long, Integer>(Long.MAX_VALUE, Integer.MAX_VALUE)));
+            newVertex(1l, 0), // Source vertex
+            newVertex(2l, Integer.MAX_VALUE),
+            newVertex(3l, Integer.MAX_VALUE),
+            newVertex(4l, Integer.MAX_VALUE),
+            newVertex(5l, Integer.MAX_VALUE),
+            newVertex(6l, Integer.MAX_VALUE),
+            newVertex(2l, Integer.MAX_VALUE));
         List<Edge<Integer>> edges = Lists.newArrayList(
                 new Edge<Integer>(1l, 2l, 4), // A --> B (4)
                 new Edge<Integer>(1l, 3l, 2), // A --> C (2)
@@ -131,8 +148,6 @@ public class Exercise_3 {
         GraphOps ops = new GraphOps(G, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class),
                 scala.reflect.ClassTag$.MODULE$.apply(Integer.class));
 
-        Map<Long, Long> pathFrom = new HashMap();
-
         List<Tuple2<Object, Tuple2<Long, Integer>>> finalVertices = ops
                 .pregel(new Tuple2<Long, Integer>(Long.MAX_VALUE, Integer.MAX_VALUE),
                         Integer.MAX_VALUE,
@@ -144,25 +159,44 @@ public class Exercise_3 {
                 .vertices()
                 .toJavaRDD().collect();
 
+        // Once the computation is done, we have to trace back the path from the
+        // "linked list" of vertices. To do so, we use a HashMap to store the
+        // information from the vertices so that we can process it quickly.
+        //
+        // Doing this, allows us to compute the path quickly for each vertex in linear
+        // time. Instead of O(n^2) since we dont need to traverse the whole
+        // vertex list to find each vertex in the path.
+
+        Map<Long, Long> pathFrom = new HashMap<Long, Long>();
+
         finalVertices.forEach(v -> {
             pathFrom.put((Long) v._1(), v._2()._1());
         });
 
+        // Now we run through the vertices and print the path with the helper
+        // function `getPath`
+
         finalVertices.forEach(v -> {
             System.out.println("Minimum cost to get from " + labels.get(1l) + " to " + labels.get(v._1()) + " is " +
-                    getPath(pathFrom, (Long) v._1(), labels) + " with cost " + v._2()._2());
+                    getPath(pathFrom, (Long) v._1(), labels).toString() + " with cost " + v._2()._2());
         });
     }
 
-    public static String getPath(Map<Long, Long> pathFrom, Long position, Map<Long, String> labels) {
+    // Helper function to trace back the path from the destincation vertex to
+    // the source and reverse it.
+    public static List<String> getPath(Map<Long, Long> pathFrom, Long position, Map<Long, String> labels) {
         List<String> path = new ArrayList<>();
+
+        // As long as there is a previous vertex to visit, we add it to the
+        // path and move along.
         while (position != Long.MAX_VALUE) {
             path.add(labels.get(position));
             position = pathFrom.get(position);
         }
 
+        // Once finished, we reverse the path and return it.
         Collections.reverse(path);
-        return path.toString();
+        return path;
     }
 
 }
