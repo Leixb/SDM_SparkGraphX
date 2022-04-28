@@ -58,7 +58,7 @@ public class Exercise_4 {
             return;
         }
 
-        JavaRDD<Row> edges_rdd = ctx.parallelize(edges_list, 1000);
+        JavaRDD<Row> edges_rdd = ctx.parallelize(edges_list);
 
         StructType edges_schema = new StructType(new StructField[] {
                 new StructField("src", DataTypes.StringType, true, new MetadataBuilder().build()),
@@ -67,14 +67,13 @@ public class Exercise_4 {
 
         Dataset<Row> edges = sqlCtx.createDataFrame(edges_rdd, edges_schema);
 
-        GraphFrame gf = GraphFrame.apply(vertices, edges);
+        final Double dampingFactor = 0.85;
+        final Integer maxIter = 20;
 
-        System.out.println(gf);
-
-        GraphFrame results = gf.pageRank().maxIter(10).resetProbability(0.15).run();
-
-        results.vertices().select("id", "title", "pagerank").sort(col("pagerank").desc()).show(10);
-        results.edges().select("src", "dst", "weight").sort(col("weight").desc()).show(10);
+        GraphFrame.apply(vertices, edges).pageRank().maxIter(maxIter).resetProbability(1.0 - dampingFactor).run()
+                .vertices().select("id", "title", "pagerank")
+                .sort(col("pagerank").desc())
+                .show(10);
 
     }
 
