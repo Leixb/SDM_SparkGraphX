@@ -67,8 +67,8 @@ public class Exercise_4 {
 
         Dataset<Row> edges = sqlCtx.createDataFrame(edges_rdd, edges_schema);
 
-        final Double dampingFactor = 0.85;
-        final Integer maxIter = 20;
+        final Double dampingFactor = 0.925;
+        final Integer maxIter = 20; // Any value between 10 and 20 is fine and takes reasonable time.
 
         GraphFrame.apply(vertices, edges).pageRank().maxIter(maxIter).resetProbability(1.0 - dampingFactor).run()
                 .vertices().select("id", "title", "pagerank")
